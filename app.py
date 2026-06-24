@@ -1,180 +1,210 @@
+```python
 import streamlit as st
 import random
 
-# ----------------------------
-# Page Setup
-# ----------------------------
+# ==================================
+# PAGE CONFIG
+# ==================================
 st.set_page_config(
-    page_title="Composition Adventure",
+    page_title="Composition Adventure Game",
     page_icon="✏️",
     layout="centered"
 )
 
-# ----------------------------
-# Session State
-# ----------------------------
-if "score" not in st.session_state:
-    st.session_state.score = 0
-
-if "question_number" not in st.session_state:
-    st.session_state.question_number = 1
-
-if "current_question" not in st.session_state:
-    st.session_state.current_question = None
-
-# ----------------------------
-# Question Bank
-# ----------------------------
-questions = [
+# ==================================
+# GAME QUESTIONS
+# ==================================
+QUESTIONS = [
     {
-        "scenario": "You found a lost puppy at the park. What is the BEST opening sentence?",
-        "choices": [
-            "I was walking in the park when I heard a soft bark.",
+        "question": "Which is the BEST opening sentence for a story about a lost puppy?",
+        "options": [
             "Dogs are animals.",
-            "The park is green.",
-            "My favourite food is pizza."
+            "I was walking in the park when I heard a frightened bark.",
+            "The weather was hot.",
+            "I like puppies."
         ],
-        "answer": 0,
-        "explanation": "A good opening introduces the event and catches the reader's interest."
+        "answer": 1,
+        "explanation": "A good opening introduces the event and makes readers curious."
     },
     {
-        "scenario": "Your composition is about a surprise birthday party. Which sentence shows feelings?",
-        "choices": [
-            "There were balloons.",
-            "The cake was round.",
-            "I was shocked and excited when everyone shouted 'Surprise!'",
-            "The party started at 5pm."
+        "question": "Which sentence shows feelings?",
+        "options": [
+            "The cake was on the table.",
+            "I felt nervous as I stepped onto the stage.",
+            "The room was large.",
+            "There were many chairs."
         ],
-        "answer": 2,
-        "explanation": "Good compositions describe emotions to make the story interesting."
+        "answer": 1,
+        "explanation": "Stories become more interesting when feelings are included."
     },
     {
-        "scenario": "Which sentence uses descriptive language?",
-        "choices": [
-            "The dog ran.",
-            "The fluffy golden dog sprinted across the grassy field.",
-            "The dog is an animal.",
-            "I saw a dog."
+        "question": "Which sentence uses descriptive language?",
+        "options": [
+            "The bird flew.",
+            "The colourful bird soared across the bright blue sky.",
+            "I saw a bird.",
+            "Birds have wings."
         ],
         "answer": 1,
         "explanation": "Descriptive words help readers imagine the scene."
     },
     {
-        "scenario": "What should happen before the ending of a story?",
-        "choices": [
-            "The problem is solved.",
-            "The title appears.",
-            "The author introduces himself.",
-            "Nothing happens."
+        "question": "What should every good story have?",
+        "options": [
+            "A problem",
+            "Only a title",
+            "Many colours",
+            "A long paragraph"
         ],
         "answer": 0,
-        "explanation": "Stories usually solve the problem before ending."
+        "explanation": "A problem makes the story exciting and gives characters something to solve."
     },
     {
-        "scenario": "Which sentence is the BEST ending?",
-        "choices": [
+        "question": "Which is the BEST ending?",
+        "options": [
             "The End.",
             "I learned that helping others brings happiness.",
-            "There was a dog.",
-            "I went home."
+            "Then I went home.",
+            "It happened yesterday."
         ],
         "answer": 1,
-        "explanation": "A good ending reflects on the experience or lesson learned."
+        "explanation": "A strong ending often includes a lesson or reflection."
     },
     {
-        "scenario": "You are writing about a rainy day. Which sentence creates a vivid picture?",
-        "choices": [
-            "It rained.",
-            "Rain is water.",
-            "Huge raindrops drummed loudly on the roof.",
-            "The weather changed."
+        "question": "Which sentence creates suspense?",
+        "options": [
+            "I opened the door.",
+            "The door slowly creaked open as strange sounds echoed inside.",
+            "The house was old.",
+            "I walked away."
         ],
-        "answer": 2,
-        "explanation": "Strong details help readers imagine the scene."
+        "answer": 1,
+        "explanation": "Suspense keeps readers wondering what will happen next."
     }
 ]
 
-# ----------------------------
-# New Question Function
-# ----------------------------
-def get_new_question():
-    return random.choice(questions)
+# ==================================
+# SESSION STATE
+# ==================================
+if "score" not in st.session_state:
+    st.session_state.score = 0
 
-if st.session_state.current_question is None:
-    st.session_state.current_question = get_new_question()
+if "question" not in st.session_state:
+    st.session_state.question = random.choice(QUESTIONS)
 
-q = st.session_state.current_question
+if "answered" not in st.session_state:
+    st.session_state.answered = False
 
-# ----------------------------
-# Title
-# ----------------------------
-st.title("✏️ Composition Adventure")
-st.subheader("Help your writing hero earn points!")
+# ==================================
+# TITLE
+# ==================================
+st.title("🎮 Composition Adventure Game")
+st.write("Help your writing hero earn points and become a Story Master!")
 
-st.success(f"🏆 Score: {st.session_state.score}")
-
-st.write(f"### Question {st.session_state.question_number}")
-
-st.info(q["scenario"])
-
-choice = st.radio(
-    "Choose the best answer:",
-    q["choices"],
-    key=f"choice_{st.session_state.question_number}"
+st.markdown(
+    f"""
+    ### 🏆 Score: {st.session_state.score}
+    """
 )
 
-# ----------------------------
-# Submit Answer
-# ----------------------------
-if st.button("Submit Answer"):
+st.divider()
 
-    selected_index = q["choices"].index(choice)
+# ==================================
+# DISPLAY QUESTION
+# ==================================
+current = st.session_state.question
 
-    if selected_index == q["answer"]:
-        st.success("🎉 Correct! Great job!")
-        st.write("**Why?**")
-        st.write(q["explanation"])
+st.subheader("📚 Writing Challenge")
+
+selected = st.radio(
+    current["question"],
+    current["options"]
+)
+
+# ==================================
+# CHECK ANSWER
+# ==================================
+if st.button("✅ Submit Answer") and not st.session_state.answered:
+
+    selected_index = current["options"].index(selected)
+
+    if selected_index == current["answer"]:
+
+        st.success("🎉 Correct!")
+        st.write(current["explanation"])
 
         st.session_state.score += 10
 
     else:
-        st.error("❌ Not quite. Try to learn from this!")
-        st.write("**Explanation:**")
-        st.write(q["explanation"])
 
-        correct_answer = q["choices"][q["answer"]]
-        st.write(f"✅ Correct answer: **{correct_answer}**")
+        st.error("❌ Not quite right.")
 
-# ----------------------------
-# Next Question
-# ----------------------------
-if st.button("Next Question"):
+        st.write(
+            f"Correct Answer: **{current['options'][current['answer']]}**"
+        )
 
-    st.session_state.question_number += 1
-    st.session_state.current_question = get_new_question()
+        st.info(current["explanation"])
 
-    st.rerun()
+    st.session_state.answered = True
 
-# ----------------------------
-# Achievement Section
-# ----------------------------
+# ==================================
+# NEXT QUESTION
+# ==================================
+if st.session_state.answered:
+
+    if st.button("➡️ Next Challenge"):
+
+        st.session_state.question = random.choice(QUESTIONS)
+        st.session_state.answered = False
+        st.rerun()
+
+# ==================================
+# ACHIEVEMENTS
+# ==================================
 st.divider()
+
+st.subheader("⭐ Achievement Level")
 
 if st.session_state.score >= 50:
     st.balloons()
-    st.success("🌟 Writing Star! You have earned 50 points!")
+    st.success("🏆 Story Master")
 
 elif st.session_state.score >= 30:
-    st.success("🚀 Great Writer! Keep going!")
+    st.success("🌟 Writing Star")
 
 elif st.session_state.score >= 10:
-    st.info("👍 Good Start! Keep learning!")
+    st.info("👍 Beginner Writer")
 
-# ----------------------------
-# Reset Game
-# ----------------------------
+else:
+    st.write("Play more to unlock badges!")
+
+# ==================================
+# WRITING TIP
+# ==================================
+tips = [
+    "Use interesting adjectives.",
+    "Include feelings in your story.",
+    "Describe what characters see and hear.",
+    "Create a problem and solution.",
+    "Use dialogue to make stories lively.",
+    "End your story with a lesson learned."
+]
+
+st.divider()
+
+st.subheader("💡 Writing Tip")
+st.success(random.choice(tips))
+
+# ==================================
+# NEW GAME
+# ==================================
+st.divider()
+
 if st.button("🔄 Start New Game"):
     st.session_state.score = 0
-    st.session_state.question_number = 1
-    st.session_state.current_question = get_new_question()
+    st.session_state.question = random.choice(QUESTIONS)
+    st.session_state.answered = False
     st.rerun()
+
+st.caption("✏️ Composition Adventure Game for Young Writers")
+```
